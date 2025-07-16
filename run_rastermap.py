@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rastermap import Rastermap
 from tqdm import tqdm
+from scipy.stats import zscore
 
 root = "C://Users//Josh Selfe//OneDrive - Nexus365//Other Documents//Neuromatch"
 
@@ -15,13 +16,14 @@ unsup_bef = 'TX105_2022_10_08_2' #example mouse before supervised learning
 unsup_aft = 'TX105_2022_10_19_2' #example mouse after supervised learning
 
 svd_dec_400pc = np.load(os.path.join(root, sup_aft +'_SVD_dec.npy'), allow_pickle=1).item() # 400 PCs
-proj_400pc = svd_dec_400pc['U'][:, :].T @ svd_dec_400pc['V'] # project from the PC space back to neural space (only do it for the first 1000 neuorns)
-nfrs = proj_400pc.shape[1]
-subset = proj_400pc[:1000, :]
+spks = svd_dec_400pc['U'][:, :].T @ svd_dec_400pc['V'] # project from the PC space back to neural space (only do it for the first 1000 neuorns)
+spks = zscore(spks, axis=1)
+nfrs = spks.shape[1]
+subset = spks[:1000, :]
 
 plt.figure(figsize=(10, 5))
 for i in range(10):
-    plt.plot(proj_400pc[i], label=f'Neuron {i+1}')
+    plt.plot(spks[i], label=f'Neuron {i+1}')
 
 plt.xlabel("Time (or frame index)")
 plt.ylabel("Fluorescence")
@@ -32,7 +34,7 @@ plt.show()
 
 #%%
 model = Rastermap(n_PCs=200, n_clusters=100, 
-                  locality=0.75, time_lag_window=5).fit(subset)
+                  locality=0.75, time_lag_window=5).fit(spks)
 
 y = model.embedding # neurons x 1
 isort = model.isort
