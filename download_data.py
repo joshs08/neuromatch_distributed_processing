@@ -12,7 +12,7 @@ root = "C://Users//Josh Selfe//OneDrive - Nexus365//Other Documents//Neuromatch"
 
 # download files from Figshare
 #file_ID = [54866333, 54183860] # IDs of files
-file_ID = [54184673]
+file_ID = [54183875, 54866360]
 BASE_URL = 'https://api.figshare.com/v2'
 r = requests.get(BASE_URL + '/articles/' + str(28811129)) # 28811129 is the ID of the whole dataset
 file_metadata = json.loads(r.text)
